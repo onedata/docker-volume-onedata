@@ -1,0 +1,14 @@
+
+.PHONY: all install
+
+all: docker-volume-onedata
+
+docker-volume-onedata: main.go
+    govendor sync
+    govendor build
+
+install: docker-volume-onedata
+    install -m 0755 docker-volume-onedata $(DESTDIR)/bin
+
+clean:
+    rm docker-volume-onedata

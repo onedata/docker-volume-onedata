@@ -1,0 +1,46 @@
+{
+    "description": "Onedata volume plugin for Docker",
+    "documentation": "https://docs.docker.com/engine/extend/plugins/",
+    "entrypoint": [
+        "/go/bin/docker-volume-onedata"
+    ],
+    "env": [
+        {
+            "name": "DEBUG",
+            "settable": [
+                "value"
+            ],
+            "value": "0"
+        }
+    ],
+    "interface": {
+        "socket": "onedata.sock",
+        "types": [
+            "docker.volumedriver/1.0"
+        ]
+    },
+    "linux": {
+        "capabilities": [
+            "CAP_SYS_ADMIN"
+        ],
+        "devices": [
+            {
+                "path": "/dev/fuse"
+            }
+        ]
+    },
+    "mounts": [
+        {
+            "destination": "/mnt/state",
+            "options": [
+                "rbind"
+            ],
+            "source": "/var/docker/plugins/",
+            "type": "bind"
+        }
+    ],
+    "network": {
+        "type": "host"
+    },
+    "propagatedmount": "/mnt/volumes"
+}
