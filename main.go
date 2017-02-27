@@ -365,11 +365,11 @@ func main() {
 	}
 
 	h := volume.NewHandler(d)
-  if runtime.GOOS == "unix" {
+  if runtime.GOOS == "linux" {
     log.Infof("Listening on Unix socket: %s", socketPath)
     log.Error(h.ServeUnix(socketPath, 0))
   } else {
-    log.Error("This operating system is not supported.")
+    log.Error("This operating system is not supported: ", runtime.GOOS)
   }
 
 }

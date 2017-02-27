@@ -26,18 +26,49 @@ sudo make -f Makefile.legacy DESTDIR=/usr/local/bin install
 The Onedata volume plugin should be running as a deamon, it can be invoked manually from command line or configured as a system service.
 
 ```
-docker-volume-onedata /var/docker/plugins &
+docker-volume-onedata /var/lib/docker/plugins &
+```
+
+To run in debug mode use:
+```
+docker-volume-onedata -d /var/lib/docker/plugins
 ```
 
 #### Creating volumes
 
+Create the Onedata volume using `docker volume create`:
 ```
 docker volume create -d onedata -o host=<ONEPROVIDER_IP> -o token=<ACCESS_TOKEN> -o insecure=true [-o port=<port>] VOLUME_NAME
+```
 
+Check if the volume was create successfully:
+```
 docker volume ls
 DRIVER              VOLUME NAME
-onedata/docker-volume         VOLUME_NAME
+onedata        VOLUME_NAME
+```
 
+Show the details of the volume:
+```
+docker volume inspect plab5
+[
+    {
+        "Driver": "onedata",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/plugins/volumes/6a539918ac2c5baf8c0dbf324fe3826f",
+        "Name": "VOLUME_NAME",
+        "Options": {
+            "host": "oneprovider.example.com",
+            "insecure": "true",
+            "token": "MDAxNWxvY2F00aW9uIG9uZXpvbmUKMDAzYmlkZW500aWZpZXIgRHR00WTg5dHNHOFZxSzVBZkJhamtaa004wMU5ocWc00azI3WkV00Z00ZkdDJSawowMDFhY2lkIHRpbWUgPCAxNTE5NDgyNDc4CjAwMmZzaWduYXR1cmUgt01Zu6WZ2Wqt3s02nUItRAVDBMYWx6BlBTNQ5KBNqQSDI1"
+        },
+        "Scope": "local"
+    }
+]
+```
+
+Access volume using any container:
+```
 docker run -it -v VOLUME_NAME:<path> busybox ls <path>
 ```
 
