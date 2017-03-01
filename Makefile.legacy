@@ -18,6 +18,5 @@ with-docker:
     -e "GOPATH=/go" -w /go/src/github.com/onedata/docker-volume-onedata \
     golang:1.8 \
     bash -c 'go get -u github.com/kardianos/govendor && \
-             cd /go/src/github.com/onedata/docker-volume-onedata && \
              /go/bin/govendor sync && \
              go build -v -ldflags "-s -w" -o bin/docker-volume-onedata'
