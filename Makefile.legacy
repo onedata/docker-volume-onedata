@@ -1,7 +1,7 @@
 
-.PHONY: all install
+.PHONY: all install package
 
-all: docker-volume-onedata
+all: bin/docker-volume-onedata
 
 docker-volume-onedata: main.go
 	govendor sync
@@ -20,3 +20,47 @@ with-docker:
     bash -c 'go get -u github.com/kardianos/govendor && \
              /go/bin/govendor sync && \
              go build -v -ldflags "-s -w" -o bin/docker-volume-onedata'
+
+FPM_COMMON_OPTIONS=\
+    --input-type dir \
+    --name docker-volume-onedata \
+    --version 3.0.0-rc12 \
+    --url https://github.com/onedata/docker-volume-onedata \
+    --license 'Apache 2.0' \
+    --vendor 'Onedata' \
+    --category 'net' \
+    --architecture native \
+    --maintainer 'Onedata Support <support@onedata.org>' \
+    --description 'Onedata Docker volume plugin' \
+    --depends oneclient \
+    --depends docker-engine
+
+FPM_DEB_OPTIONS=\
+    --deb-priority optional \
+    --deb-systemd systemd/docker-volume-onedata.service \
+    --deb-systemd systemd/docker-volume-onedata.socket
+
+FPM_RPM_OPTIONS=\
+    --deb-systemd systemd/docker-volume-onedata.service \
+    --deb-systemd systemd/docker-volume-onedata.socket
+
+FPM_FILES=\
+    bin/docker-volume-onedata
+
+package-deb: docker-volume-onedata
+	docker run -v `pwd`:/data docker.onedata.org/fpm  \
+    fpm \
+    $(FPM_COMMON_OPTIONS) \
+    --output-type deb \
+    $(FPM_DEB_OPTIONS) \
+    --prefix /usr/local \
+    $(FPM_FILES)
+
+package-rpm: docker-volume-onedata
+	docker run -v `pwd`:/data docker.onedata.org/fpm  \
+    fpm \
+    $(FPM_COMMON_OPTIONS) \
+    --output-type rpm \
+    $(FPM_RPM_OPTIONS) \
+    --prefix /usr/local \
+    $(FPM_FILES)
