@@ -5,10 +5,19 @@ all: docker-volume-onedata
 
 docker-volume-onedata: main.go
 	govendor sync
-	govendor build
+	govendor build -o bin/docker-volume-onedata
 
 install: docker-volume-onedata
 	install -m 0755 docker-volume-onedata $(DESTDIR)/bin
 
 clean:
 	rm docker-volume-onedata
+
+with-docker:
+	docker run --rm -v `pwd`:/go/src/github.com/onedata/docker-volume-onedata \
+    -e "GOPATH=/go" -w /go/src/github.com/onedata/docker-volume-onedata \
+    golang:1.8 \
+    bash -c 'go get -u github.com/kardianos/govendor && \
+             cd /go/src/github.com/onedata/docker-volume-onedata && \
+             /go/bin/govendor sync && \
+             go build -v -ldflags "-s -w" -o bin/docker-volume-onedata'
