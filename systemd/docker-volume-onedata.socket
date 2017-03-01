@@ -1,0 +1,8 @@
+[Unit]
+Description=Onedata Docker volume plugin
+
+[Socket]
+ListenStream=/run/docker/plugins/onedata.sock
+
+[Install]
+WantedBy=sockets.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Onedata Docker volume plugin
+Before=docker.service
+After=network.target docker-volume-onedata.socket
+Requires=docker-volume-onedata.socket docker.service
+
+[Service]
+ExecStart=/usr/local/bin/docker-volume-onedata /var/lib/docker/plugins
+
+[Install]
+WantedBy=multi-user.target
