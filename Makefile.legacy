@@ -1,19 +1,33 @@
+#
+# @file Makefile.legacy
+# @author Bartek Kryza
+# @copyright (C) 2017 ACK CYFRONET AGH
+# @copyright This software is released under the Apache 2.0 license cited in
+# 'LICENSE'
+#
 
-.PHONY: all install package
+.PHONY: all install package clean docker-volume-onedata-linux
 
-all: bin/docker-volume-onedata
+PKG_REVISION    ?= $(shell git describe --tags --always)
+PKG_VERSION     ?= $(shell git describe --tags --always | tr - .)
+PKG_BUILD       ?= 1
+PKG_ID           = oneclient-$(PKG_VERSION)
+
+
+all: docker-volume-onedata
 
 docker-volume-onedata: main.go
 	govendor sync
-	govendor build -o bin/docker-volume-onedata
+	govendor build -o docker-volume-onedata
 
 install: docker-volume-onedata
 	install -m 0755 docker-volume-onedata $(DESTDIR)/bin
 
 clean:
-	rm docker-volume-onedata
+	rm -f docker-volume-onedata bin/docker-volume-onedata
+	rm -f *.deb *.rpm
 
-with-docker:
+docker-volume-onedata-linux:
 	docker run --rm -v `pwd`:/go/src/github.com/onedata/docker-volume-onedata \
     -e "GOPATH=/go" -w /go/src/github.com/onedata/docker-volume-onedata \
     golang:1.8 \
@@ -24,43 +38,42 @@ with-docker:
 FPM_COMMON_OPTIONS=\
     --input-type dir \
     --name docker-volume-onedata \
-    --version 3.0.0-rc12 \
+    --version $(PKG_VERSION) \
     --url https://github.com/onedata/docker-volume-onedata \
     --license 'Apache 2.0' \
     --vendor 'Onedata' \
     --category 'net' \
-    --architecture native \
+    --architecture amd64 \
     --maintainer 'Onedata Support <support@onedata.org>' \
     --description 'Onedata Docker volume plugin' \
-    --depends oneclient \
-    --depends docker-engine
+    --depends 'oneclient >= 3.0.0.rc11.89'
 
 FPM_DEB_OPTIONS=\
     --deb-priority optional \
-    --deb-systemd systemd/docker-volume-onedata.service \
-    --deb-systemd systemd/docker-volume-onedata.socket
+    systemd/docker-volume-onedata.service=/lib/systemd/system/ \
+    systemd/docker-volume-onedata.socket=/lib/systemd/system/
 
 FPM_RPM_OPTIONS=\
-    --deb-systemd systemd/docker-volume-onedata.service \
-    --deb-systemd systemd/docker-volume-onedata.socket
+    systemd/docker-volume-onedata.service=/lib/systemd/system/ \
+    systemd/docker-volume-onedata.socket=/lib/systemd/system/
 
 FPM_FILES=\
-    bin/docker-volume-onedata
+    bin/docker-volume-onedata=/bin/
 
-package-deb: docker-volume-onedata
-	docker run -v `pwd`:/data docker.onedata.org/fpm  \
+package-deb: docker-volume-onedata-linux
+	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
     fpm \
     $(FPM_COMMON_OPTIONS) \
     --output-type deb \
+    --prefix /usr \
     $(FPM_DEB_OPTIONS) \
-    --prefix /usr/local \
     $(FPM_FILES)
 
-package-rpm: docker-volume-onedata
-	docker run -v `pwd`:/data docker.onedata.org/fpm  \
+package-rpm: docker-volume-onedata-linux
+	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
     fpm \
     $(FPM_COMMON_OPTIONS) \
     --output-type rpm \
+    --prefix /usr \
     $(FPM_RPM_OPTIONS) \
-    --prefix /usr/local \
     $(FPM_FILES)

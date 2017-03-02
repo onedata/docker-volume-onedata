@@ -1,5 +1,5 @@
 [Unit]
-Description=Onedata Docker volume plugin
+Description=Onedata Docker volume plugin socket
 
 [Socket]
 ListenStream=/run/docker/plugins/onedata.sock
