@@ -23,8 +23,8 @@ install: docker-volume-onedata
 	install -m 0755 docker-volume-onedata $(DESTDIR)/bin
 
 clean:
-	rm -f docker-volume-onedata bin/docker-volume-onedata
-	rm -f *.deb *.rpm
+	rm -f docker-volume-onedata bin/docker-volume-onedata || true
+	rm -f *.deb *.rpm || true
 
 docker-volume-onedata-linux:
 	docker run --rm -v `pwd`:/go/src/github.com/onedata/docker-volume-onedata \
