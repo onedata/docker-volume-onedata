@@ -11,7 +11,7 @@
 PKG_REVISION    ?= $(shell git describe --tags --always)
 PKG_VERSION     ?= $(shell git describe --tags --always | tr - .)
 PKG_BUILD       ?= 1
-PKG_ID           = oneclient-$(PKG_VERSION)
+PROCESS_MANAGER ?= systemd
 
 all: docker-volume-onedata
 
@@ -37,7 +37,7 @@ docker-volume-onedata-linux:
 FPM_COMMON_OPTIONS=\
     --input-type dir \
     --name docker-volume-onedata \
-    --version $(PKG_VERSION) \
+    --version $(PKG_VERSION)_$(PROCESS_MANAGER) \
     --url https://github.com/onedata/docker-volume-onedata \
     --license 'Apache 2.0' \
     --vendor 'Onedata' \
@@ -48,31 +48,35 @@ FPM_COMMON_OPTIONS=\
     --depends 'oneclient >= 3.0.0.rc11.89'
 
 FPM_DEB_OPTIONS=\
-    --deb-priority optional \
-    systemd/docker-volume-onedata.service=/lib/systemd/system/ \
-    systemd/docker-volume-onedata.socket=/lib/systemd/system/
+    --deb-priority optional
 
-FPM_RPM_OPTIONS=\
-    systemd/docker-volume-onedata.service=/lib/systemd/system/ \
-    systemd/docker-volume-onedata.socket=/lib/systemd/system/
+FPM_RPM_OPTIONS=
 
-FPM_FILES=\
-    bin/docker-volume-onedata=/bin/
+ifeq ($(PROCESS_MANAGER), systemd)
+FPM_CONFIG_FILES=\
+    systemd/docker-volume-onedata.service=/usr/lib/systemd/system/ \
+    systemd/docker-volume-onedata.socket=/usr/lib/systemd/system/
+else
+FPM_CONFIG_FILES=\
+    upstart/docker-volume-onedata.conf=/etc/init/
+endif
 
 package-deb: docker-volume-onedata-linux
 	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
     fpm \
     $(FPM_COMMON_OPTIONS) \
     --output-type deb \
-    --prefix /usr \
+    --prefix / \
     $(FPM_DEB_OPTIONS) \
-    $(FPM_FILES)
+    $(FPM_CONFIG_FILES) \
+    bin/docker-volume-onedata=/bin/
 
 package-rpm: docker-volume-onedata-linux
 	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
     fpm \
     $(FPM_COMMON_OPTIONS) \
     --output-type rpm \
-    --prefix /usr \
+    --prefix / \
     $(FPM_RPM_OPTIONS) \
-    $(FPM_FILES)
+    $(FPM_CONFIG_FILES) \
+    bin/docker-volume-onedata=/bin/
