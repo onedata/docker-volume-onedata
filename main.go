@@ -16,9 +16,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-  "runtime"
+	"runtime"
+	"strings"
 	"sync"
-  "strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/go-plugins-helpers/volume"
@@ -27,24 +27,22 @@ import (
 const socketPath = "/run/docker/plugins/onedata.sock"
 const oneproviderDefaultPort = "5555"
 
-
 type OnedataVolume struct {
-  // The hostname or IP address of Oneprovider to connect to
-  OneproviderHost string
-  // The port of Oneprovider (default: 5555)
-  OneproviderPort string
-  // Users access token to Onedata
-	AccessToken   string
-  // Skip Oneprovider certificate validation (default: false)
-  Insecure bool
-  // Fuse options
-  FuseOptions string
+	// The hostname or IP address of Oneprovider to connect to
+	OneproviderHost string
+	// The port of Oneprovider (default: 5555)
+	OneproviderPort string
+	// Users access token to Onedata
+	AccessToken string
+	// Skip Oneprovider certificate validation (default: false)
+	Insecure bool
+	// Fuse options
+	FuseOptions string
 
+	// Mountpoint on host where the Oneclient will mount the Fuse filesystem
+	Mountpoint string
 
-  // Mountpoint on host where the Oneclient will mount the Fuse filesystem
-	Mountpoint  string
-
-  // Number of containers connected to this volume
+	// Number of containers connected to this volume
 	connections int
 }
 
@@ -100,9 +98,9 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 	defer d.Unlock()
 	v := &OnedataVolume{}
 
-  // Set default values
-  v.Insecure = false
-  v.OneproviderPort = oneproviderDefaultPort
+	// Set default values
+	v.Insecure = false
+	v.OneproviderPort = oneproviderDefaultPort
 
 	for key, val := range r.Options {
 		switch key {
@@ -112,10 +110,10 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 			v.AccessToken = val
 		case "port":
 			v.OneproviderPort = val
-    case "insecure":
-      if strings.EqualFold(val, "true") {
-			   v.Insecure = true
-      }
+		case "insecure":
+			if strings.EqualFold(val, "true") {
+				v.Insecure = true
+			}
 		default:
 			return responseError(fmt.Sprintf("Unknown option %q", val))
 		}
@@ -123,17 +121,17 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 
 	if v.OneproviderHost == "" {
 		return responseError(
-      "Oneprovider host must be specified using 'host=' option!")
+			"Oneprovider host must be specified using 'host=' option!")
 	}
-  if v.AccessToken == "" {
+	if v.AccessToken == "" {
 		return responseError(
-      "Access token must be specified using 'token=' option!")
+			"Access token must be specified using 'token=' option!")
 	}
 
-  // Generate unique path for the mountpoint based on Oneprovider host
-  // and access token
+	// Generate unique path for the mountpoint based on Oneprovider host
+	// and access token
 	v.Mountpoint = filepath.Join(d.root, fmt.Sprintf("%x",
-    md5.Sum([]byte(v.OneproviderHost+v.AccessToken))))
+		md5.Sum([]byte(v.OneproviderHost+v.AccessToken))))
 
 	d.volumes[r.Name] = v
 
@@ -155,17 +153,17 @@ func (d *OnedataDriver) Remove(r volume.Request) volume.Response {
 
 	if v.connections != 0 {
 		return responseError(fmt.Sprintf(
-      "Volume %s is currently used by a container", r.Name))
+			"Volume %s is currently used by a container", r.Name))
 	}
 
 	if err := os.RemoveAll(v.Mountpoint); err != nil {
 		return responseError(err.Error())
 	}
 
-  delete(d.volumes, r.Name)
+	delete(d.volumes, r.Name)
 	d.saveState()
 
-  return volume.Response{}
+	return volume.Response{}
 }
 
 func (d *OnedataDriver) Path(r volume.Request) volume.Response {
@@ -205,7 +203,7 @@ func (d *OnedataDriver) Mount(r volume.MountRequest) volume.Response {
 
 		if fi != nil && !fi.IsDir() {
 			return responseError(
-        fmt.Sprintf("%v already exist and it's not a directory", v.Mountpoint))
+				fmt.Sprintf("%v already exist and it's not a directory", v.Mountpoint))
 		}
 
 		if err := d.mountVolume(v); err != nil {
@@ -252,7 +250,7 @@ func (d *OnedataDriver) Get(r volume.Request) volume.Response {
 	}
 
 	return volume.Response{Volume: &volume.Volume{Name: r.Name,
-    Mountpoint: v.Mountpoint}}
+		Mountpoint: v.Mountpoint}}
 }
 
 func (d *OnedataDriver) List(r volume.Request) volume.Response {
@@ -275,30 +273,30 @@ func (d *OnedataDriver) Capabilities(r volume.Request) volume.Response {
 }
 
 func (d *OnedataDriver) mountVolume(v *OnedataVolume) error {
-  //
-  // Build oneclient mount command from OnedataVolume parameters
-  //
+	//
+	// Build oneclient mount command from OnedataVolume parameters
+	//
 	cmd := fmt.Sprintf("oneclient -H %s -t %s", v.OneproviderHost, v.AccessToken)
 
-  //
-  // Add optional arguments
-  //
-  if v.OneproviderPort != oneproviderDefaultPort {
+	//
+	// Add optional arguments
+	//
+	if v.OneproviderPort != oneproviderDefaultPort {
 		cmd = fmt.Sprintf("%s -P %s", cmd, v.OneproviderPort)
 	}
-	if v.Insecure  {
+	if v.Insecure {
 		cmd = fmt.Sprintf("%s -i",
-      cmd)
+			cmd)
 	}
-  if v.FuseOptions != ""  {
+	if v.FuseOptions != "" {
 		cmd = fmt.Sprintf("%s -o %s",
-      cmd, v.FuseOptions)
+			cmd, v.FuseOptions)
 	}
 
-  //
-  // Add Docker plugin mountpoint
-  //
-  cmd = fmt.Sprintf("%s %s", cmd, v.Mountpoint)
+	//
+	// Add Docker plugin mountpoint
+	//
+	cmd = fmt.Sprintf("%s %s", cmd, v.Mountpoint)
 
 	log.Debug(cmd)
 
@@ -317,47 +315,47 @@ func responseError(err string) volume.Response {
 }
 
 func printUsage(progName string) {
-  fmt.Println("Onedata Docker volume plugin")
-  fmt.Println("Usage:")
-  fmt.Println("\t", progName, "[-d] [-h] <docker_plugins_path>")
+	fmt.Println("Onedata Docker volume plugin")
+	fmt.Println("Usage:")
+	fmt.Println("\t", progName, "[-d] [-h] <docker_plugins_path>")
 }
 
 func main() {
 
-  commandLineArguments := os.Args
-  programName := commandLineArguments[0]
+	commandLineArguments := os.Args
+	programName := commandLineArguments[0]
 
-  if len(commandLineArguments) < 2 {
-    log.Fatal("Too few arguments to %s", programName)
-    printUsage(programName)
-    os.Exit(1)
-  }
+	if len(commandLineArguments) < 2 {
+		log.Fatal("Too few arguments to %s", programName)
+		printUsage(programName)
+		os.Exit(1)
+	}
 
-  //
-  // If second argument is -h print help
-  //
-  if commandLineArguments[1] == "-h" {
-    printUsage(programName)
-    os.Exit(0)
-  }
+	//
+	// If second argument is -h print help
+	//
+	if commandLineArguments[1] == "-h" {
+		printUsage(programName)
+		os.Exit(0)
+	}
 
-  //
-  // If second argument is -d enable debug mode
-  //
-  if commandLineArguments[1] == "-d" {
-    log.SetLevel(log.DebugLevel)
-  }
+	//
+	// If second argument is -d enable debug mode
+	//
+	if commandLineArguments[1] == "-d" {
+		log.SetLevel(log.DebugLevel)
+	}
 
-  //
-  // The last parameter should be a path to the Docker plugins directory
-  //
-  pluginsRoot := commandLineArguments[len(commandLineArguments)-1]
-  fmt.Println("Plugins root:", pluginsRoot)
-  fileInfo, err := os.Stat(pluginsRoot)
-  if err != nil || !fileInfo.IsDir() {
-    fmt.Println("Invalid path to Docker plugins root, try: /run/docker/plugins")
-    os.Exit(1)
-  }
+	//
+	// The last parameter should be a path to the Docker plugins directory
+	//
+	pluginsRoot := commandLineArguments[len(commandLineArguments)-1]
+	fmt.Println("Plugins root:", pluginsRoot)
+	fileInfo, err := os.Stat(pluginsRoot)
+	if err != nil || !fileInfo.IsDir() {
+		fmt.Println("Invalid path to Docker plugins root, try: /run/docker/plugins")
+		os.Exit(1)
+	}
 
 	d, err := newOnedataDriver(pluginsRoot)
 	if err != nil {
@@ -365,11 +363,11 @@ func main() {
 	}
 
 	h := volume.NewHandler(d)
-  if runtime.GOOS == "linux" {
-    log.Infof("Listening on Unix socket: %s", socketPath)
-    log.Error(h.ServeUnix(socketPath, 0))
-  } else {
-    log.Error("This operating system is not supported: ", runtime.GOOS)
-  }
+	if runtime.GOOS == "linux" {
+		log.Infof("Listening on Unix socket: %s", socketPath)
+		log.Error(h.ServeUnix(socketPath, 0))
+	} else {
+		log.Error("This operating system is not supported: ", runtime.GOOS)
+	}
 
 }
