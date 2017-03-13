@@ -36,6 +36,33 @@ type OnedataVolume struct {
 	AccessToken string
 	// Skip Oneprovider certificate validation (default: false)
 	Insecure bool
+  // Log directory
+  LogDir string
+  // Path to config file
+  Config string
+
+  // Specify number of parallel buffer scheduler threads
+  BufferSchedulerThreadCount string
+  // Specify number of parallel communicator threads
+  CommunicatorThreadCount string
+  // Specify number of parallel scheduler threads
+  SchedulerThreadCount string
+  // Specify number of parallel storage helper threads
+  StorageHelperThreadCount string
+  // Specify minimum size in bytes of in-memory cache for input data blocks
+  ReadBufferMinSize string
+  // Specify maximum size in bytes of in-memory cache for input data blocks
+  ReadBufferMaxSize string
+  // Specify read ahead period in seconds of in-memory cache for input data
+  // blocks
+  ReadBufferPrefetchDuration string
+  // Specify minimum size in bytes of in-memory cache for output data blocks
+  WriteBufferMinSize string
+  // Specify maximum size in bytes of in-memory cache for output data blocks
+  WriteBufferMaxSize string
+  // Specify idle period in seconds before flush of in-memory cache for output
+  // data blocks
+  WriteBufferFlushDelay string
 	// Fuse options
 	FuseOptions string
 
@@ -114,6 +141,30 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 			if strings.EqualFold(val, "true") {
 				v.Insecure = true
 			}
+    case "opt":
+      options := append(strings.Split(v.FuseOptions, ","),
+                        strings.Split(val, ",")...)
+      v.FuseOptions = strings.Join(options, ",")
+    case "buffer-scheduler-thread-count":
+      v.BufferSchedulerThreadCount = val
+    case "communicator-thread-count":
+      v.CommunicatorThreadCount = val
+    case "scheduler-thread-count":
+      v.SchedulerThreadCount = val
+    case "storage-helper-thread-count":
+      v.StorageHelperThreadCount = val
+    case "read-buffer-min-size":
+      v.ReadBufferMinSize = val
+    case "read-buffer-max-size":
+      v.ReadBufferMaxSize = val
+    case "read-buffer-prefetch-duration":
+      v.ReadBufferPrefetchDuration = val
+    case "write-buffer-min-size":
+      v.WriteBufferMinSize = val
+    case "write-buffer-max-size":
+      v.WriteBufferMaxSize = val
+    case "write-buffer-flush-delay":
+      v.WriteBufferFlushDelay = val
 		default:
 			return responseError(fmt.Sprintf("Unknown option %q", val))
 		}
@@ -285,12 +336,50 @@ func (d *OnedataDriver) mountVolume(v *OnedataVolume) error {
 		cmd = fmt.Sprintf("%s -P %s", cmd, v.OneproviderPort)
 	}
 	if v.Insecure {
-		cmd = fmt.Sprintf("%s -i",
-			cmd)
+		cmd = fmt.Sprintf("%s -i", cmd)
 	}
 	if v.FuseOptions != "" {
-		cmd = fmt.Sprintf("%s -o %s",
-			cmd, v.FuseOptions)
+		cmd = fmt.Sprintf("%s --opt %s", cmd, v.FuseOptions)
+	}
+  if v.BufferSchedulerThreadCount != "" {
+		cmd = fmt.Sprintf("%s --buffer-scheduler-thread-count %s", cmd,
+      v.BufferSchedulerThreadCount)
+	}
+  if v.CommunicatorThreadCount != "" {
+		cmd = fmt.Sprintf("%s --communicator-thread-count %s", cmd,
+      v.CommunicatorThreadCount)
+	}
+  if v.SchedulerThreadCount != "" {
+		cmd = fmt.Sprintf("%s --scheduler-thread-count %s", cmd,
+      v.SchedulerThreadCount)
+	}
+  if v.StorageHelperThreadCount != "" {
+		cmd = fmt.Sprintf("%s --storage-helper-thread-count %s", cmd,
+      v.StorageHelperThreadCount)
+	}
+  if v.ReadBufferMinSize != "" {
+		cmd = fmt.Sprintf("%s --read-buffer-min-size %s", cmd,
+      v.ReadBufferMinSize)
+	}
+  if v.ReadBufferMaxSize != "" {
+		cmd = fmt.Sprintf("%s --read-buffer-max-size %s", cmd,
+      v.ReadBufferMaxSize)
+	}
+  if v.ReadBufferPrefetchDuration != "" {
+		cmd = fmt.Sprintf("%s --read-buffer-prefetch-duration %s", cmd,
+      v.ReadBufferPrefetchDuration)
+	}
+  if v.WriteBufferMinSize != "" {
+		cmd = fmt.Sprintf("%s --write-buffer-min-size %s", cmd,
+      v.WriteBufferMinSize)
+	}
+  if v.WriteBufferMaxSize != "" {
+		cmd = fmt.Sprintf("%s --write-buffer-max-size %s", cmd,
+      v.WriteBufferMaxSize)
+	}
+  if v.WriteBufferFlushDelay != "" {
+		cmd = fmt.Sprintf("%s --write-buffer-flush-delay %s", cmd,
+      v.WriteBufferFlushDelay)
 	}
 
 	//

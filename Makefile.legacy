@@ -37,7 +37,7 @@ docker-volume-onedata-linux:
 FPM_COMMON_OPTIONS=\
     --input-type dir \
     --name docker-volume-onedata \
-    --version $(PKG_VERSION)_$(PROCESS_MANAGER) \
+    --version $(PKG_VERSION).$(PROCESS_MANAGER) \
     --url https://github.com/onedata/docker-volume-onedata \
     --license 'Apache 2.0' \
     --vendor 'Onedata' \
@@ -54,10 +54,10 @@ FPM_RPM_OPTIONS=
 
 ifeq ($(PROCESS_MANAGER), systemd)
 FPM_CONFIG_FILES=\
-    systemd/docker-volume-onedata.service=/usr/lib/systemd/system/ \
-    systemd/docker-volume-onedata.socket=/usr/lib/systemd/system/
+    systemd/docker-volume-onedata.service=/usr/lib/systemd/system/
 else
 FPM_CONFIG_FILES=\
+    --after-install upstart/upstart-reload.sh \
     upstart/docker-volume-onedata.conf=/etc/init/
 endif
 
@@ -69,7 +69,7 @@ package-deb: docker-volume-onedata-linux
     --prefix / \
     $(FPM_DEB_OPTIONS) \
     $(FPM_CONFIG_FILES) \
-    bin/docker-volume-onedata=/bin/
+    bin/docker-volume-onedata=/usr/bin/
 
 package-rpm: docker-volume-onedata-linux
 	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
@@ -79,4 +79,4 @@ package-rpm: docker-volume-onedata-linux
     --prefix / \
     $(FPM_RPM_OPTIONS) \
     $(FPM_CONFIG_FILES) \
-    bin/docker-volume-onedata=/bin/
+    bin/docker-volume-onedata=/usr/bin/
