@@ -6,7 +6,8 @@
 # 'LICENSE'
 #
 
-.PHONY: all install package clean docker-volume-onedata-linux
+.PHONY: all install package clean docker-volume-onedata-linux \
+        package-descriptors centos7-pkg-list.json
 
 PKG_REVISION    ?= $(shell git describe --tags --always)
 PKG_VERSION     ?= $(shell git describe --tags --always | tr - .)
@@ -80,3 +81,19 @@ package-rpm: docker-volume-onedata-linux
     $(FPM_RPM_OPTIONS) \
     $(FPM_CONFIG_FILES) \
     bin/docker-volume-onedata=/usr/bin/
+
+package-descriptors: centos7-pkg-list.json trusty-pkg-list.json \
+                     wily-pkg-list.json xenial-pkg-list.json
+	echo "Building package descriptors"
+
+centos7-pkg-list.json:
+	docker run --rm realguess/jq sh -c "echo '{}' | jq '.\"yum/centos/7x/x86_64/docker-volume-onedata-${PKG_VERSION}.systemd-1.x86_64.rpm\" = \"centos-7-x86_64/x86_64\"'"  > centos7-pkg-list.json
+
+trusty-pkg-list.json:
+	docker run --rm realguess/jq sh -c "echo '{}' | jq '.\"apt/ubuntu/trusty/pool/main/d/docker-volume-onedata_${PKG_VERSION}.upstart_amd64.deb\" = \"trusty/binary-amd64\"'"  > trusty-pkg-list.json
+
+wily-pkg-list.json:
+	docker run --rm realguess/jq sh -c "echo '{}' | jq '.\"apt/ubuntu/wily/pool/main/d/docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb\" = \"wily/binary-amd64\"'"  > wily-pkg-list.json
+
+xenial-pkg-list.json:
+	docker run --rm realguess/jq sh -c "echo '{}' | jq '.\"apt/ubuntu/xenial/pool/main/d/docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb\" = \"xenial/binary-amd64\"'"  > xenial-pkg-list.json
