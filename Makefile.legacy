@@ -82,6 +82,34 @@ package-rpm: docker-volume-onedata-linux
     $(FPM_CONFIG_FILES) \
     bin/docker-volume-onedata=/usr/bin/
 
+package-trusty:
+	mkdir -p trusty.tmp/package/trusty/binary-amd64
+	rm -rf trusty.tmp/package/trusty/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.upstart_amd64.deb trusty.tmp/package/trusty/binary-amd64/
+	cd trusty.tmp; tar -zcvf trusty.tar.gz package; mv trusty.tar.gz ..; cd ..
+  rm -rf trusty.tmp
+
+package-wily:
+	mkdir -p wily.tmp/package/wily/binary-amd64
+	rm -rf wily.tmp/package/wily/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb wily.tmp/package/wily/binary-amd64/
+	cd wily.tmp; tar -zcvf wily.tar.gz package; mv wily.tar.gz ..; cd ..
+  rm -rf wily.tmp
+
+package-xenial:
+	mkdir -p xenial.tmp/package/xenial/binary-amd64
+	rm -rf xenial.tmp/package/xenial/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb xenial.tmp/package/xenial/binary-amd64/
+	cd xenial.tmp; tar -zcvf xenial.tar.gz package; mv xenial.tar.gz ..; cd ..
+  rm -rf xenial.tmp
+
+package-centos7:
+	mkdir -p centos7.tmp/package/centos-7-x86_64/binary-amd64
+	rm -rf xenial.tmp/package/centos-7-x86_64/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.systemd-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
+	cd centos7.tmp; tar -zcvf centos7.tar.gz package; mv centos7.tar.gz ..; cd ..
+  rm -rf centos7.tmp
+
 package-descriptors: centos7-pkg-list.json trusty-pkg-list.json \
                      wily-pkg-list.json xenial-pkg-list.json
 	echo "Building package descriptors"
