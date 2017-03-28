@@ -106,7 +106,7 @@ package-xenial:
 package-centos7:
 	mkdir -p centos7.tmp/package/centos-7-x86_64/x86_64
 	rm -rf centos7.tmp/package/centos-7-x86_64/x86_64/*
-	cp docker-volume-onedata_${PKG_VERSION}.systemd-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
+	cp docker-volume-onedata-${PKG_VERSION}.systemd-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
 	cd centos7.tmp; tar -zcvf centos7.tar.gz package; mv centos7.tar.gz ..; cd ..
 	rm -rf centos7.tmp
 
