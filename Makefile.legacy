@@ -84,6 +84,7 @@ package-rpm: docker-volume-onedata-linux
 
 package-trusty:
 	mkdir -p trusty.tmp/package/trusty/binary-amd64
+	mkdir -p xenial.tmp/package/trusty/source
 	rm -rf trusty.tmp/package/trusty/binary-amd64/*
 	cp docker-volume-onedata_${PKG_VERSION}.upstart_amd64.deb trusty.tmp/package/trusty/binary-amd64/
 	cd trusty.tmp; tar -zcvf trusty.tar.gz package; mv trusty.tar.gz ..; cd ..
@@ -91,6 +92,7 @@ package-trusty:
 
 package-wily:
 	mkdir -p wily.tmp/package/wily/binary-amd64
+	mkdir -p xenial.tmp/package/wily/source
 	rm -rf wily.tmp/package/wily/binary-amd64/*
 	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb wily.tmp/package/wily/binary-amd64/
 	cd wily.tmp; tar -zcvf wily.tar.gz package; mv wily.tar.gz ..; cd ..
@@ -98,6 +100,7 @@ package-wily:
 
 package-xenial:
 	mkdir -p xenial.tmp/package/xenial/binary-amd64
+	mkdir -p xenial.tmp/package/xenial/source
 	rm -rf xenial.tmp/package/xenial/binary-amd64/*
 	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb xenial.tmp/package/xenial/binary-amd64/
 	cd xenial.tmp; tar -zcvf xenial.tar.gz package; mv xenial.tar.gz ..; cd ..
@@ -105,6 +108,7 @@ package-xenial:
 
 package-centos7:
 	mkdir -p centos7.tmp/package/centos-7-x86_64/x86_64
+	mkdir -p centos7.tmp/package/centos-7-x86_64/SRPMS
 	rm -rf centos7.tmp/package/centos-7-x86_64/x86_64/*
 	cp docker-volume-onedata-${PKG_VERSION}.systemd-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
 	cd centos7.tmp; tar -zcvf centos7.tar.gz package; mv centos7.tar.gz ..; cd ..
