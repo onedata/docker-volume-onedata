@@ -127,7 +127,7 @@ Since Docker 1.13 plugins are managed by the Docker itself, including publishing
 To build the Onedata Docker volume plugin from this repository, execute:
 ```
 make -f Makefile.managed
-docker plugin enable onedata/docker-volume:3.0.0-rc12
+docker plugin enable onedata/docker-volume:3.0.0-rc11
 ```
 
 This automatically installs the plugin in the local Docker installation.
@@ -137,14 +137,14 @@ This automatically installs the plugin in the local Docker installation.
 To install the plugin directly from DockerHub use:
 
 ```
-docker plugin install onedata/docker-volume:3.0.0-rc12
-docker plugin enable onedata/docker-volume:3.0.0-rc12
+docker plugin install onedata/docker-volume:3.0.0-rc11
+docker plugin enable onedata/docker-volume:3.0.0-rc11
 ```
 
 #### Creating volumes
 
 ```
-docker volume create -d onedata/docker-volume:3.0.0-rc12 -o host=<ONEPROVIDER_IP> -o token=<ACCESS_TOKEN> -o insecure=true [-o port=<port>] VOLUME_NAME
+docker volume create -d onedata/docker-volume:3.0.0-rc11 -o host=<ONEPROVIDER_IP> -o token=<ACCESS_TOKEN> -o insecure=true [-o port=<port>] VOLUME_NAME
 
 docker volume ls
 DRIVER              VOLUME NAME
