@@ -41,6 +41,12 @@ type OnedataVolume struct {
   // Path to config file
   Config string
 
+	// Force direct IO mode
+	ForceDirectIO bool
+	// Force proxy IO mode
+	ForceProxyIO bool
+	// Disable Oneclient buffering
+	NoBuffer bool
   // Specify number of parallel buffer scheduler threads
   BufferSchedulerThreadCount string
   // Specify number of parallel communicator threads
@@ -145,6 +151,18 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
       options := append(strings.Split(v.FuseOptions, ","),
                         strings.Split(val, ",")...)
       v.FuseOptions = strings.Join(options, ",")
+		case "force-proxy-io":
+			if strings.EqualFold(val, "true") {
+				v.ForceProxyIO = true
+			}
+		case "force-direct-io":
+			if strings.EqualFold(val, "true") {
+				v.ForceDirectIO = true
+			}
+		case "no-buffer":
+			if strings.EqualFold(val, "true") {
+				v.NoBuffer = true
+			}
     case "buffer-scheduler-thread-count":
       v.BufferSchedulerThreadCount = val
     case "communicator-thread-count":
@@ -340,6 +358,15 @@ func (d *OnedataDriver) mountVolume(v *OnedataVolume) error {
 	}
 	if v.FuseOptions != "" {
 		cmd = fmt.Sprintf("%s --opt %s", cmd, v.FuseOptions)
+	}
+	if v.ForceProxyIO {
+		cmd = fmt.Sprintf("%s --force-proxy-io", cmd)
+	}
+	if v.ForceDirectIO {
+		cmd = fmt.Sprintf("%s --force-direct-io", cmd)
+	}
+	if v.NoBuffer {
+		cmd = fmt.Sprintf("%s --no-buffer", cmd)
 	}
   if v.BufferSchedulerThreadCount != "" {
 		cmd = fmt.Sprintf("%s --buffer-scheduler-thread-count %s", cmd,

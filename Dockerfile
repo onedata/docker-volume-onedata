@@ -3,7 +3,7 @@ MAINTAINER Bartek Kryza <bkryza@gmail.com>
 
 # Build arguments
 ARG RELEASE=devel
-ARG VERSION="3.0.0-rc14"
+ARG VERSION="17.06.0-beta5"
 
 # Get the image up to date and install utility tools
 RUN apt-get -y update && \
