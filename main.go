@@ -36,6 +36,8 @@ type OnedataVolume struct {
 	AccessToken string
 	// Skip Oneprovider certificate validation (default: false)
 	Insecure bool
+	// Enable Oneclient debugging (default: false)
+	Debug bool
   // Log directory
   LogDir string
   // Path to config file
@@ -143,6 +145,10 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 			v.AccessToken = val
 		case "port":
 			v.OneproviderPort = val
+		case "debug":
+			if strings.EqualFold(val, "true") {
+				v.Debug = true
+			}
 		case "insecure":
 			if strings.EqualFold(val, "true") {
 				v.Insecure = true
@@ -352,6 +358,9 @@ func (d *OnedataDriver) mountVolume(v *OnedataVolume) error {
 	//
 	if v.OneproviderPort != oneproviderDefaultPort {
 		cmd = fmt.Sprintf("%s -P %s", cmd, v.OneproviderPort)
+	}
+	if v.Debug {
+		cmd = fmt.Sprintf("%s -d", cmd)
 	}
 	if v.Insecure {
 		cmd = fmt.Sprintf("%s -i", cmd)
