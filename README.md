@@ -36,16 +36,14 @@ Onedata `docker-volume-onedata` plugin can be installed using one of the
 packages provided for selected distrbutions - see
 [get.onedata.org](get.onedata.org).
 
-Please make sure that you have Docker installed.
-
-##### Upstart based distributions (e.g. Ubuntu 14.04 LTS)
-
-After installation `docker-volume-onedata` plugin can be started using `service`
-command:
+The easiest way is to use a oneline script:
 
 ```
-sudo service docker-volume-onedata start
+wget -O - wget -qO- http://packages.onedata.org/docker-volume-onedata.sh | sudo sh
 ```
+
+The script will detect if Docker is installed, and if not will try 
+to install the latest version automatically.
 
 ##### Systemd based distributions
 
@@ -61,9 +59,19 @@ To start:
 sudo systemctl start docker-volume-onedata.service
 ```
 
+##### Upstart based distributions (e.g. Ubuntu 14.04 LTS)
+
+After installation `docker-volume-onedata` plugin can be started using `service`
+command:
+
+```
+sudo service docker-volume-onedata start
+```
+
 ##### Running manually
 
-The Onedata volume plugin can be started manually as a deamon, it can be invoked manually from command line or configured as a system service.
+The Onedata volume plugin can be started manually as a deamon, it can be invoked
+manually from command line or configured as a system service.
 
 ```
 docker-volume-onedata /var/lib/docker/plugins &
@@ -79,22 +87,22 @@ docker-volume-onedata -d /var/lib/docker/plugins
 Create the Onedata volume using `docker volume create` commands:
 
 ```
-docker volume create -d onedata -o host=<ONEPROVIDER_IP> -o token=<ACCESS_TOKEN> -o insecure=true [-o port=<port>] VOLUME_NAME
+docker volume create -d onedata -o host=<ONEPROVIDER_IP> -o token=<ACCESS_TOKEN> -o insecure=true [-o port=<port>] <VOLUME_NAME>
 ```
 
-`-o` arguments accept any valid oneclient option, which would be passed
+`-o` arguments accept any valid oneclient options, which would be passed
 to `oneclient` directly using `--` form, e.g. `-o communicator-thread-count=10`.
 
-Check if the volume was create successfully:
+Check if the volume was created successfully:
 ```
 docker volume ls
-DRIVER              VOLUME NAME
-onedata        VOLUME_NAME
+DRIVER         VOLUME NAME
+onedata        oneclientvol
 ```
 
 Show the details of the volume:
 ```
-docker volume inspect plab5
+docker volume inspect oneclientvol
 [
     {
         "Driver": "onedata",
@@ -113,13 +121,13 @@ docker volume inspect plab5
 
 Access volume using any container:
 ```
-docker run -v VOLUME_NAME:/spaces -it busybox ls /spaces
+docker run -v oneclientvol:/spaces -it busybox ls /spaces
 ```
 
 
 ### Managed plugin mode
 
-> NOT SUPPORTED YET
+> THIS FEATURE IS NOT SUPPORTED YET
 
 Since Docker 1.13 plugins are managed by the Docker itself, including publishing and installing them from DockerHub. The plugins are bundled inside of Docker containers.
 

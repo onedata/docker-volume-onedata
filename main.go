@@ -38,10 +38,10 @@ type OnedataVolume struct {
 	Insecure bool
 	// Enable Oneclient debugging (default: false)
 	Debug bool
-  // Log directory
-  LogDir string
-  // Path to config file
-  Config string
+	// Log directory
+	LogDir string
+	// Path to config file
+	Config string
 
 	// Force direct IO mode
 	ForceDirectIO bool
@@ -49,28 +49,28 @@ type OnedataVolume struct {
 	ForceProxyIO bool
 	// Disable Oneclient buffering
 	NoBuffer bool
-  // Specify number of parallel buffer scheduler threads
-  BufferSchedulerThreadCount string
-  // Specify number of parallel communicator threads
-  CommunicatorThreadCount string
-  // Specify number of parallel scheduler threads
-  SchedulerThreadCount string
-  // Specify number of parallel storage helper threads
-  StorageHelperThreadCount string
-  // Specify minimum size in bytes of in-memory cache for input data blocks
-  ReadBufferMinSize string
-  // Specify maximum size in bytes of in-memory cache for input data blocks
-  ReadBufferMaxSize string
-  // Specify read ahead period in seconds of in-memory cache for input data
-  // blocks
-  ReadBufferPrefetchDuration string
-  // Specify minimum size in bytes of in-memory cache for output data blocks
-  WriteBufferMinSize string
-  // Specify maximum size in bytes of in-memory cache for output data blocks
-  WriteBufferMaxSize string
-  // Specify idle period in seconds before flush of in-memory cache for output
-  // data blocks
-  WriteBufferFlushDelay string
+	// Specify number of parallel buffer scheduler threads
+	BufferSchedulerThreadCount string
+	// Specify number of parallel communicator threads
+	CommunicatorThreadCount string
+	// Specify number of parallel scheduler threads
+	SchedulerThreadCount string
+	// Specify number of parallel storage helper threads
+	StorageHelperThreadCount string
+	// Specify minimum size in bytes of in-memory cache for input data blocks
+	ReadBufferMinSize string
+	// Specify maximum size in bytes of in-memory cache for input data blocks
+	ReadBufferMaxSize string
+	// Specify read ahead period in seconds of in-memory cache for input data
+	// blocks
+	ReadBufferPrefetchDuration string
+	// Specify minimum size in bytes of in-memory cache for output data blocks
+	WriteBufferMinSize string
+	// Specify maximum size in bytes of in-memory cache for output data blocks
+	WriteBufferMaxSize string
+	// Specify idle period in seconds before flush of in-memory cache for output
+	// data blocks
+	WriteBufferFlushDelay string
 	// Fuse options
 	FuseOptions string
 
@@ -153,10 +153,10 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 			if strings.EqualFold(val, "true") {
 				v.Insecure = true
 			}
-    case "opt":
-      options := append(strings.Split(v.FuseOptions, ","),
-                        strings.Split(val, ",")...)
-      v.FuseOptions = strings.Join(options, ",")
+		case "opt":
+			options := append(strings.Split(v.FuseOptions, ","),
+				strings.Split(val, ",")...)
+			v.FuseOptions = strings.Join(options, ",")
 		case "force-proxy-io":
 			if strings.EqualFold(val, "true") {
 				v.ForceProxyIO = true
@@ -169,26 +169,26 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 			if strings.EqualFold(val, "true") {
 				v.NoBuffer = true
 			}
-    case "buffer-scheduler-thread-count":
-      v.BufferSchedulerThreadCount = val
-    case "communicator-thread-count":
-      v.CommunicatorThreadCount = val
-    case "scheduler-thread-count":
-      v.SchedulerThreadCount = val
-    case "storage-helper-thread-count":
-      v.StorageHelperThreadCount = val
-    case "read-buffer-min-size":
-      v.ReadBufferMinSize = val
-    case "read-buffer-max-size":
-      v.ReadBufferMaxSize = val
-    case "read-buffer-prefetch-duration":
-      v.ReadBufferPrefetchDuration = val
-    case "write-buffer-min-size":
-      v.WriteBufferMinSize = val
-    case "write-buffer-max-size":
-      v.WriteBufferMaxSize = val
-    case "write-buffer-flush-delay":
-      v.WriteBufferFlushDelay = val
+		case "buffer-scheduler-thread-count":
+			v.BufferSchedulerThreadCount = val
+		case "communicator-thread-count":
+			v.CommunicatorThreadCount = val
+		case "scheduler-thread-count":
+			v.SchedulerThreadCount = val
+		case "storage-helper-thread-count":
+			v.StorageHelperThreadCount = val
+		case "read-buffer-min-size":
+			v.ReadBufferMinSize = val
+		case "read-buffer-max-size":
+			v.ReadBufferMaxSize = val
+		case "read-buffer-prefetch-duration":
+			v.ReadBufferPrefetchDuration = val
+		case "write-buffer-min-size":
+			v.WriteBufferMinSize = val
+		case "write-buffer-max-size":
+			v.WriteBufferMaxSize = val
+		case "write-buffer-flush-delay":
+			v.WriteBufferFlushDelay = val
 		default:
 			return responseError(fmt.Sprintf("Unknown option %q", val))
 		}
@@ -377,45 +377,45 @@ func (d *OnedataDriver) mountVolume(v *OnedataVolume) error {
 	if v.NoBuffer {
 		cmd = fmt.Sprintf("%s --no-buffer", cmd)
 	}
-  if v.BufferSchedulerThreadCount != "" {
+	if v.BufferSchedulerThreadCount != "" {
 		cmd = fmt.Sprintf("%s --buffer-scheduler-thread-count %s", cmd,
-      v.BufferSchedulerThreadCount)
+			v.BufferSchedulerThreadCount)
 	}
-  if v.CommunicatorThreadCount != "" {
+	if v.CommunicatorThreadCount != "" {
 		cmd = fmt.Sprintf("%s --communicator-thread-count %s", cmd,
-      v.CommunicatorThreadCount)
+			v.CommunicatorThreadCount)
 	}
-  if v.SchedulerThreadCount != "" {
+	if v.SchedulerThreadCount != "" {
 		cmd = fmt.Sprintf("%s --scheduler-thread-count %s", cmd,
-      v.SchedulerThreadCount)
+			v.SchedulerThreadCount)
 	}
-  if v.StorageHelperThreadCount != "" {
+	if v.StorageHelperThreadCount != "" {
 		cmd = fmt.Sprintf("%s --storage-helper-thread-count %s", cmd,
-      v.StorageHelperThreadCount)
+			v.StorageHelperThreadCount)
 	}
-  if v.ReadBufferMinSize != "" {
+	if v.ReadBufferMinSize != "" {
 		cmd = fmt.Sprintf("%s --read-buffer-min-size %s", cmd,
-      v.ReadBufferMinSize)
+			v.ReadBufferMinSize)
 	}
-  if v.ReadBufferMaxSize != "" {
+	if v.ReadBufferMaxSize != "" {
 		cmd = fmt.Sprintf("%s --read-buffer-max-size %s", cmd,
-      v.ReadBufferMaxSize)
+			v.ReadBufferMaxSize)
 	}
-  if v.ReadBufferPrefetchDuration != "" {
+	if v.ReadBufferPrefetchDuration != "" {
 		cmd = fmt.Sprintf("%s --read-buffer-prefetch-duration %s", cmd,
-      v.ReadBufferPrefetchDuration)
+			v.ReadBufferPrefetchDuration)
 	}
-  if v.WriteBufferMinSize != "" {
+	if v.WriteBufferMinSize != "" {
 		cmd = fmt.Sprintf("%s --write-buffer-min-size %s", cmd,
-      v.WriteBufferMinSize)
+			v.WriteBufferMinSize)
 	}
-  if v.WriteBufferMaxSize != "" {
+	if v.WriteBufferMaxSize != "" {
 		cmd = fmt.Sprintf("%s --write-buffer-max-size %s", cmd,
-      v.WriteBufferMaxSize)
+			v.WriteBufferMaxSize)
 	}
-  if v.WriteBufferFlushDelay != "" {
+	if v.WriteBufferFlushDelay != "" {
 		cmd = fmt.Sprintf("%s --write-buffer-flush-delay %s", cmd,
-      v.WriteBufferFlushDelay)
+			v.WriteBufferFlushDelay)
 	}
 
 	//
@@ -441,8 +441,16 @@ func responseError(err string) volume.Response {
 
 func printUsage(progName string) {
 	fmt.Println("Onedata Docker volume plugin")
+	fmt.Println("")
 	fmt.Println("Usage:")
-	fmt.Println("\t", progName, "[-d] [-h] <docker_plugins_path>")
+	fmt.Println("  * To start as a system service use:")
+	fmt.Println("")
+	fmt.Println("    sudo systemctl enable docker-volume-onedata.service")
+	fmt.Println("    sudo systemctl start docker-volume-onedata.service")
+	fmt.Println("")
+	fmt.Println("  * To start as a standalone process (e.g. for debugging):")
+	fmt.Println("")
+	fmt.Println("\t", progName, "[-h|--help] [-d|--debug] <docker_plugins_path>")
 }
 
 func main() {
@@ -457,17 +465,17 @@ func main() {
 	}
 
 	//
-	// If second argument is -h print help
+	// If first argument is -h print help
 	//
-	if commandLineArguments[1] == "-h" {
+	if commandLineArguments[1] == "-h" || commandLineArguments[1] == "--help" {
 		printUsage(programName)
 		os.Exit(0)
 	}
 
 	//
-	// If second argument is -d enable debug mode
+	// If first argument is -d enable debug mode
 	//
-	if commandLineArguments[1] == "-d" {
+	if commandLineArguments[1] == "-d" || commandLineArguments[1] == "--debug" {
 		log.SetLevel(log.DebugLevel)
 	}
 
