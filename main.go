@@ -156,7 +156,13 @@ func (d *OnedataDriver) Create(r volume.Request) volume.Response {
 		case "opt":
 			options := append(strings.Split(v.FuseOptions, ","),
 				strings.Split(val, ",")...)
-			v.FuseOptions = strings.Join(options, ",")
+			var options_nonempty []string
+            for _, opt := range options {
+                if opt != "" {
+                    options_nonempty = append(options_nonempty, opt)
+                }
+            }
+			v.FuseOptions = strings.Join(options_nonempty, ",")
 		case "force-proxy-io":
 			if strings.EqualFold(val, "true") {
 				v.ForceProxyIO = true
