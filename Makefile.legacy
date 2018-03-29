@@ -46,7 +46,7 @@ FPM_COMMON_OPTIONS=\
     --architecture amd64 \
     --maintainer 'Onedata Support <support@onedata.org>' \
     --description 'Onedata Docker volume plugin' \
-    --depends 'oneclient >= 18.02.0-beta2'
+    --depends 'oneclient >= 18.02.0-beta5'
 
 FPM_DEB_OPTIONS=\
     --deb-priority optional
