@@ -1,5 +1,5 @@
 PLUGIN_NAME=onedata/docker-volume
-PLUGIN_TAG=3.0.0-rc12
+PLUGIN_TAG=18.02.0-rc2
 
 all: clean docker rootfs create
 
