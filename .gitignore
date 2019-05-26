@@ -1,4 +1,5 @@
 docker-volume-onedata
+bin/
 plugin/
 vendor/github.com/
 vendor/golang.org/

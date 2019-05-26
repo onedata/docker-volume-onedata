@@ -1,14 +1,115 @@
+#
+# @file Makefile.legacy
+# @author Bartek Kryza
+# @copyright (C) 2017 ACK CYFRONET AGH
+# @copyright This software is released under the Apache 2.0 license cited in
+# 'LICENSE'
+#
 
-.PHONY: all install
+.PHONY: all install package clean docker-volume-onedata-linux \
+        package-descriptors centos7-pkg-list.json
+
+PKG_REVISION    ?= $(shell git describe --tags --always)
+PKG_VERSION     ?= $(shell git describe --tags --always | tr - .)
+PKG_BUILD       ?= 1
+PROCESS_MANAGER ?= systemd
 
 all: docker-volume-onedata
 
 docker-volume-onedata: main.go
 	govendor sync
-	govendor build
+	govendor build -o docker-volume-onedata
 
 install: docker-volume-onedata
 	install -m 0755 docker-volume-onedata $(DESTDIR)/bin
 
 clean:
-	rm docker-volume-onedata
+	rm -f docker-volume-onedata bin/docker-volume-onedata || true
+	rm -f *.deb *.rpm || true
+
+docker-volume-onedata-linux:
+	docker run --rm -v `pwd`:/go/src/github.com/onedata/docker-volume-onedata \
+    -e "GOPATH=/go" -w /go/src/github.com/onedata/docker-volume-onedata \
+    golang:1.8 \
+    bash -c 'go get -u github.com/kardianos/govendor && \
+             /go/bin/govendor sync && \
+             go build -v -ldflags "-s -w" -o bin/docker-volume-onedata'
+
+FPM_COMMON_OPTIONS=\
+    --input-type dir \
+    --name docker-volume-onedata \
+    --version $(PKG_VERSION).$(PROCESS_MANAGER) \
+    --url https://github.com/onedata/docker-volume-onedata \
+    --license 'Apache 2.0' \
+    --vendor 'Onedata' \
+    --category 'net' \
+    --architecture amd64 \
+    --maintainer 'Onedata Support <support@onedata.org>' \
+    --description 'Onedata Docker volume plugin' \
+    --depends 'oneclient >= 18.02.0-rc2'
+
+FPM_DEB_OPTIONS=\
+    --deb-priority optional
+
+FPM_RPM_OPTIONS=
+
+ifeq ($(PROCESS_MANAGER), systemd)
+FPM_CONFIG_FILES=\
+    systemd/docker-volume-onedata.service=/usr/lib/systemd/system/
+else
+FPM_CONFIG_FILES=\
+    --after-install upstart/upstart-reload.sh \
+    upstart/docker-volume-onedata.conf=/etc/init/
+endif
+
+package-deb: docker-volume-onedata-linux
+	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
+    fpm \
+    $(FPM_COMMON_OPTIONS) \
+    --output-type deb \
+    --prefix / \
+    $(FPM_DEB_OPTIONS) \
+    $(FPM_CONFIG_FILES) \
+    bin/docker-volume-onedata=/usr/bin/
+
+package-rpm: docker-volume-onedata-linux
+	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
+    fpm \
+    $(FPM_COMMON_OPTIONS) \
+    --output-type rpm \
+    --prefix / \
+    $(FPM_RPM_OPTIONS) \
+    $(FPM_CONFIG_FILES) \
+    bin/docker-volume-onedata=/usr/bin/
+
+package-trusty:
+	mkdir -p trusty.tmp/package/trusty/binary-amd64
+	mkdir -p trusty.tmp/package/trusty/source
+	rm -rf trusty.tmp/package/trusty/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.upstart_amd64.deb trusty.tmp/package/trusty/binary-amd64/
+	cd trusty.tmp; tar -zcvf trusty.tar.gz package; mv trusty.tar.gz ..; cd ..
+	rm -rf trusty.tmp
+
+package-wily:
+	mkdir -p wily.tmp/package/wily/binary-amd64
+	mkdir -p wily.tmp/package/wily/source
+	rm -rf wily.tmp/package/wily/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb wily.tmp/package/wily/binary-amd64/
+	cd wily.tmp; tar -zcvf wily.tar.gz package; mv wily.tar.gz ..; cd ..
+	rm -rf wily.tmp
+
+package-xenial:
+	mkdir -p xenial.tmp/package/xenial/binary-amd64
+	mkdir -p xenial.tmp/package/xenial/source
+	rm -rf xenial.tmp/package/xenial/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb xenial.tmp/package/xenial/binary-amd64/
+	cd xenial.tmp; tar -zcvf xenial.tar.gz package; mv xenial.tar.gz ..; cd ..
+	rm -rf xenial.tmp
+
+package-centos7:
+	mkdir -p centos7.tmp/package/centos-7-x86_64/x86_64
+	mkdir -p centos7.tmp/package/centos-7-x86_64/SRPMS
+	rm -rf centos7.tmp/package/centos-7-x86_64/x86_64/*
+	cp docker-volume-onedata-${PKG_VERSION}.systemd-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
+	cd centos7.tmp; tar -zcvf centos7.tar.gz package; mv centos7.tar.gz ..; cd ..
+	rm -rf centos7.tmp
