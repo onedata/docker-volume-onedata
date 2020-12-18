@@ -9,7 +9,7 @@
 .PHONY: all install package clean docker-volume-onedata-linux \
         package-descriptors centos7-pkg-list.json
 
-ONECLIENT_MIN_VERSION ?= 20.02.4
+ONECLIENT_MIN_VERSION ?= $(shell git describe --tags `git rev-list --tags --max-count=1`)
 PKG_REVISION    ?= $(shell git describe --tags --always)
 PKG_VERSION     ?= $(shell git describe --tags --always | tr - .)
 PKG_BUILD       ?= 1
