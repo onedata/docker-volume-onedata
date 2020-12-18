@@ -3,3 +3,8 @@ bin/
 plugin/
 vendor/github.com/
 vendor/golang.org/
+bionic.tar.gz
+centos7.tar.gz
+xenial.tar.gz
+*.deb
+*.rpm
