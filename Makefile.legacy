@@ -46,7 +46,7 @@ FPM_COMMON_OPTIONS=\
     --architecture amd64 \
     --maintainer 'Onedata Support <support@onedata.org>' \
     --description 'Onedata Docker volume plugin' \
-    --depends 'oneclient >= 18.02.0-rc2'
+    --depends "oneclient >= ${PKG_VERSION}"
 
 FPM_DEB_OPTIONS=\
     --deb-priority optional
@@ -105,6 +105,14 @@ package-xenial:
 	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb xenial.tmp/package/xenial/binary-amd64/
 	cd xenial.tmp; tar -zcvf xenial.tar.gz package; mv xenial.tar.gz ..; cd ..
 	rm -rf xenial.tmp
+
+package-bionic:
+	mkdir -p bionic.tmp/package/bionic/binary-amd64
+	mkdir -p bionic.tmp/package/bionic/source
+	rm -rf bionic.tmp/package/bionic/binary-amd64/*
+	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb bionic.tmp/package/bionic/binary-amd64/
+	cd bionic.tmp; tar -zcvf bionic.tar.gz package; mv bionic.tar.gz ..; cd ..
+	rm -rf bionic.tmp
 
 package-centos7:
 	mkdir -p centos7.tmp/package/centos-7-x86_64/x86_64

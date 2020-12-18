@@ -3,7 +3,7 @@ MAINTAINER Bartek Kryza <bkryza@gmail.com>
 
 # Build arguments
 ARG RELEASE=devel
-ARG VERSION="18.02.0-rc2"
+ARG VERSION="20.02.4"
 
 # Get the image up to date and install utility tools
 RUN apt-get -y update && \
@@ -19,7 +19,7 @@ RUN case ${RELEASE} in \
             curl -O http://get.onedata.org/oneclient.sh; \
             ;; \
         *) \
-            curl -O http://onedata-dev-packages.cloud.plgrid.pl/oneclient.sh; \
+            curl -O http://packages.devel.onedata.org/oneclient.sh; \
             ;; \
         esac && \
         sh oneclient.sh && \
