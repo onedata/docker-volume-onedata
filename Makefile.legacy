@@ -9,6 +9,7 @@
 .PHONY: all install package clean docker-volume-onedata-linux \
         package-descriptors centos7-pkg-list.json
 
+ONECLIENT_MIN_VERSION ?= 20.02.4
 PKG_REVISION    ?= $(shell git describe --tags --always)
 PKG_VERSION     ?= $(shell git describe --tags --always | tr - .)
 PKG_BUILD       ?= 1
@@ -38,7 +39,6 @@ docker-volume-onedata-linux:
 FPM_COMMON_OPTIONS=\
     --input-type dir \
     --name docker-volume-onedata \
-    --version $(PKG_VERSION).$(PROCESS_MANAGER) \
     --url https://github.com/onedata/docker-volume-onedata \
     --license 'Apache 2.0' \
     --vendor 'Onedata' \
@@ -46,7 +46,7 @@ FPM_COMMON_OPTIONS=\
     --architecture amd64 \
     --maintainer 'Onedata Support <support@onedata.org>' \
     --description 'Onedata Docker volume plugin' \
-    --depends "oneclient >= ${PKG_VERSION}"
+    --depends "oneclient >= ${ONECLIENT_MIN_VERSION}"
 
 FPM_DEB_OPTIONS=\
     --deb-priority optional
@@ -62,47 +62,46 @@ FPM_CONFIG_FILES=\
     upstart/docker-volume-onedata.conf=/etc/init/
 endif
 
-package-deb: docker-volume-onedata-linux
+package-deb-xenial: docker-volume-onedata-linux
 	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
     fpm \
     $(FPM_COMMON_OPTIONS) \
+    --version "$(PKG_VERSION)-1~xenial" \
     --output-type deb \
     --prefix / \
     $(FPM_DEB_OPTIONS) \
     $(FPM_CONFIG_FILES) \
     bin/docker-volume-onedata=/usr/bin/
 
+package-deb-bionic: docker-volume-onedata-linux
+	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
+    fpm \
+    $(FPM_COMMON_OPTIONS) \
+    --version "$(PKG_VERSION)-1~bionic" \
+    --output-type deb \
+    --prefix / \
+    $(FPM_DEB_OPTIONS) \
+    $(FPM_CONFIG_FILES) \
+    bin/docker-volume-onedata=/usr/bin/
+
+package-deb: package-deb-xenial package-deb-bionic
+
 package-rpm: docker-volume-onedata-linux
 	docker run -v `pwd`:/data docker.onedata.org/fpm:1.8.1 \
     fpm \
     $(FPM_COMMON_OPTIONS) \
+    --version "$(PKG_VERSION)" \
     --output-type rpm \
     --prefix / \
     $(FPM_RPM_OPTIONS) \
     $(FPM_CONFIG_FILES) \
     bin/docker-volume-onedata=/usr/bin/
 
-package-trusty:
-	mkdir -p trusty.tmp/package/trusty/binary-amd64
-	mkdir -p trusty.tmp/package/trusty/source
-	rm -rf trusty.tmp/package/trusty/binary-amd64/*
-	cp docker-volume-onedata_${PKG_VERSION}.upstart_amd64.deb trusty.tmp/package/trusty/binary-amd64/
-	cd trusty.tmp; tar -zcvf trusty.tar.gz package; mv trusty.tar.gz ..; cd ..
-	rm -rf trusty.tmp
-
-package-wily:
-	mkdir -p wily.tmp/package/wily/binary-amd64
-	mkdir -p wily.tmp/package/wily/source
-	rm -rf wily.tmp/package/wily/binary-amd64/*
-	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb wily.tmp/package/wily/binary-amd64/
-	cd wily.tmp; tar -zcvf wily.tar.gz package; mv wily.tar.gz ..; cd ..
-	rm -rf wily.tmp
-
 package-xenial:
 	mkdir -p xenial.tmp/package/xenial/binary-amd64
 	mkdir -p xenial.tmp/package/xenial/source
 	rm -rf xenial.tmp/package/xenial/binary-amd64/*
-	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb xenial.tmp/package/xenial/binary-amd64/
+	cp docker-volume-onedata_${PKG_VERSION}-1~xenial_amd64.deb xenial.tmp/package/xenial/binary-amd64/
 	cd xenial.tmp; tar -zcvf xenial.tar.gz package; mv xenial.tar.gz ..; cd ..
 	rm -rf xenial.tmp
 
@@ -110,7 +109,7 @@ package-bionic:
 	mkdir -p bionic.tmp/package/bionic/binary-amd64
 	mkdir -p bionic.tmp/package/bionic/source
 	rm -rf bionic.tmp/package/bionic/binary-amd64/*
-	cp docker-volume-onedata_${PKG_VERSION}.systemd_amd64.deb bionic.tmp/package/bionic/binary-amd64/
+	cp docker-volume-onedata_${PKG_VERSION}-1~bionic_amd64.deb bionic.tmp/package/bionic/binary-amd64/
 	cd bionic.tmp; tar -zcvf bionic.tar.gz package; mv bionic.tar.gz ..; cd ..
 	rm -rf bionic.tmp
 
@@ -118,6 +117,6 @@ package-centos7:
 	mkdir -p centos7.tmp/package/centos-7-x86_64/x86_64
 	mkdir -p centos7.tmp/package/centos-7-x86_64/SRPMS
 	rm -rf centos7.tmp/package/centos-7-x86_64/x86_64/*
-	cp docker-volume-onedata-${PKG_VERSION}.systemd-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
+	cp docker-volume-onedata-${PKG_VERSION}-1.x86_64.rpm centos7.tmp/package/centos-7-x86_64/x86_64/
 	cd centos7.tmp; tar -zcvf centos7.tar.gz package; mv centos7.tar.gz ..; cd ..
 	rm -rf centos7.tmp
