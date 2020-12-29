@@ -1,8 +1,13 @@
-# Release notes for project docker-volume-onedata
-
+Release notes for project docker-volume-onedata
+===============================================
 
 CHANGELOG
 ---------
+
+### 20.02.5
+
+-   **VFS-7141** Updated packaging for new Onedata release and added
+    Bionic packages.
 
 ### 18.02.0-rc2
 
