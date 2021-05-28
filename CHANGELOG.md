@@ -4,6 +4,8 @@ Release notes for project docker-volume-onedata
 CHANGELOG
 ---------
 
+### 21.02.0-alpha12
+
 ### 21.02.0-alpha11
 
 ### 21.02.0-alpha10
