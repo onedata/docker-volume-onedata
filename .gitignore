@@ -8,3 +8,4 @@ centos7.tar.gz
 xenial.tar.gz
 *.deb
 *.rpm
+*.iml
