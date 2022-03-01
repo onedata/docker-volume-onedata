@@ -4,6 +4,8 @@ Release notes for project docker-volume-onedata
 CHANGELOG
 ---------
 
+### 20.02.16
+
 ### 20.02.15
 
 ### 20.02.14
