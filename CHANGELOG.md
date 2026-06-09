@@ -1,8 +1,8 @@
-Release notes for project docker-volume-onedata
-===============================================
+# Release notes for project docker-volume-onedata
 
-CHANGELOG
----------
+## CHANGELOG
+
+### 25.1
 
 ### 25.0
 
